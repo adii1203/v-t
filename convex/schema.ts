@@ -8,5 +8,14 @@ import { v } from "convex/values";
 export default defineSchema({
   tasks: defineTable({
     status: v.string(),
+    name: v.string(),
+    formats: v.optional(
+      v.array(
+        v.object({
+          key: v.string(),
+          value: v.string(),
+        }),
+      ),
+    ),
   }),
 });
