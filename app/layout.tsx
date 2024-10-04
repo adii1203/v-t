@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { ThemeProvider } from "next-themes";
+import { ThemeProvider } from "@/components/theme-provider";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import ConvexClientProvider from "@/components/ConvexClientProvider";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,10 +27,15 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ConvexClientProvider>
-          <ThemeProvider attribute="class">
+          <ThemeProvider attribute="class" defaultTheme="light">
             {" "}
             <div className="flex min-h-screen w-full flex-col">
-              <main className="flex grow flex-col">{children}</main>
+              <main className="flex grow flex-col">
+                <div className="mt-4">
+                  <ThemeToggle />
+                </div>
+                {children}
+              </main>
             </div>
           </ThemeProvider>
         </ConvexClientProvider>
