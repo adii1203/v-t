@@ -1,6 +1,10 @@
 "use server";
 
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const s3Client = new S3Client({
@@ -16,6 +20,17 @@ const s3Client = new S3Client({
 export const getPresignedUrl = async (key: string) => {
   const command = new PutObjectCommand({
     Bucket: "temp-video-upload.aditya",
+    Key: key,
+  });
+
+  const url = await getSignedUrl(s3Client, command, { expiresIn: 360 });
+
+  return url;
+};
+
+export const getDownloadPresignedUrl = async (key: string) => {
+  const command = new GetObjectCommand({
+    Bucket: "final-video-adii",
     Key: key,
   });
 

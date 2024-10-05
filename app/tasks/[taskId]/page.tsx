@@ -5,9 +5,11 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import { useParams, useRouter } from "next/navigation";
-import React from "react";
+import { getDownloadPresignedUrl } from "@/app/actions/get-pre-url";
+import React, { useState } from "react";
 
 const Page = () => {
+  const [isdowloading, setIsDownloading] = useState(false);
   const { taskId } = useParams();
   const route = useRouter();
 
@@ -79,7 +81,28 @@ const Page = () => {
               className="w-[80%] mx-auto mt-4 border rounded-md px-4 py-6 flex items-center justify-between flex-wrap"
             >
               <p className="text-sm text-muted-foreground">{format.key}</p>
-              <Button size={"sm"} variant={"outline"}>
+              <Button
+                disabled={isdowloading}
+                onClick={async () => {
+                  try {
+                    setIsDownloading(true);
+                    const url = await getDownloadPresignedUrl(format.key);
+                    console.log(url);
+
+                    // download file
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = format.key;
+                    a.click();
+                  } catch (error) {
+                    console.log(error);
+                  } finally {
+                    setIsDownloading(false);
+                  }
+                }}
+                size={"sm"}
+                variant={"outline"}
+              >
                 Download
               </Button>
             </div>
