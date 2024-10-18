@@ -27,7 +27,7 @@ The system consists of several key components that work together to allow client
    - Acts as a queue for video processing tasks.
    - When a video is uploaded, the system adds the video metadata to the queue, where it awaits processing.
 
-5. **Consumer**:
+5. **[Consumer](https://github.com/adii1203/video-transcoder)**:
    - Listens for new video processing tasks from the SQS queue.
    - Validates the video and its metadata, then triggers an AWS ECS container to handle the processing.
 
