@@ -2,6 +2,8 @@
 
 This project provides a system to upload and process videos using AWS services like S3, SQS, and ECS. Below is an overview of the system and how it works.
 
+![diagram-export-19-10-2024-12_17_04-am](https://github.com/user-attachments/assets/a292e235-af9a-4b8e-ac83-4dca7bed2fcd)
+
 ## System Overview
 
 The system consists of several key components that work together to allow clients to upload videos for processing. The uploaded videos are processed using AWS Elastic Container Service (ECS), and the resulting videos are stored in an S3 bucket.
