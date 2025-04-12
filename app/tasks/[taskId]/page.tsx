@@ -73,6 +73,10 @@ const Page = () => {
           </div>
         </div>
       </div>
+      <div className="text-sm w-[80%] pt-1 mx-auto text-muted-foreground text-right">
+        This may take some time depeding on file size.
+      </div>
+
       {task.formats &&
         task.formats.map((format) => {
           return (

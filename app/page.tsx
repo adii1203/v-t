@@ -156,7 +156,7 @@ const Page = () => {
                     disabled={isUploading}
                     size={"sm"}
                   >
-                    upload
+                    {isUploading ? "uploading..." : "upload"}
                   </Button>
                 </div>
               )}
