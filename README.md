@@ -1,40 +1,59 @@
-# Welcome to your Convex + Next.js app
+# Video Transcoder
 
-This is a [Convex](https://convex.dev/) project created with [`npm create convex`](https://www.npmjs.com/package/create-convex).
+This project provides a system to upload and process videos using AWS services like S3, SQS, and ECS. Below is an overview of the system and how it works.
 
-After the initial setup (<2 minutes) you'll have a working full-stack app using:
+![diagram-export-19-10-2024-12_17_04-am](https://github.com/user-attachments/assets/a292e235-af9a-4b8e-ac83-4dca7bed2fcd)
 
-- Convex as your backend (database, server logic)
-- [React](https://react.dev/) as your frontend (web page interactivity)
-- [Next.js](https://nextjs.org/) for optimized web hosting and page routing
-- [Tailwind](https://tailwindcss.com/) and [shadcn/ui](https://ui.shadcn.com/) for building great looking accessible UI fast
+![Screenshot 2024-11-02 012040](https://github.com/user-attachments/assets/e64e8654-4ca0-42b3-8332-eb609071129f)
 
-## Get started
 
-If you just cloned this codebase and didn't use `npm create convex`, run:
+## System Overview
 
-```
-npm install
-npm run dev
-```
+The system consists of several key components that work together to allow clients to upload videos for processing. The uploaded videos are processed using AWS Elastic Container Service (ECS), and the resulting videos are stored in an S3 bucket.
 
-If you're reading this README on GitHub and want to use this template, run:
+### Components:
 
-```
-npm create convex@latest -- -t nextjs-shadcn
-```
+1. **Client**: 
+   - Initiates the video upload process.
+   - Uploads the video file to AWS S3 using a pre-signed URL.
 
-## Learn more
+2. **Database (DB) [convex](https://convex.dev)**:
+   - Stores tasks created by the client for tracking the video processing workflow.
+   - Maintains the status of each task and updates it when video processing is complete.
+   - Stores the key (file path) of the processed video once it has been uploaded to S3.
 
-To learn more about developing your project with Convex, check out:
+3. **AWS S3**: 
+   - Storage service where the original and processed video files are stored.
+   - A pre-signed URL is generated for the client to upload their video directly to the S3 bucket.
 
-- The [Tour of Convex](https://docs.convex.dev/get-started) for a thorough introduction to Convex principles.
-- The rest of [Convex docs](https://docs.convex.dev/) to learn about all Convex features.
-- [Stack](https://stack.convex.dev/) for in-depth articles on advanced topics.
+4. **AWS SQS (Simple Queue Service)**:
+   - Acts as a queue for video processing tasks.
+   - When a video is uploaded, the system adds the video metadata to the queue, where it awaits processing.
 
-## Join the community
+5. **[Consumer](https://github.com/adii1203/video-transcoder)**:
+   - Listens for new video processing tasks from the SQS queue.
+   - Validates the video and its metadata, then triggers an AWS ECS container to handle the processing.
 
-Join thousands of developers building full-stack apps with Convex:
+6. **AWS ECS (Elastic Container Service)**:
+   - Runs the video processing in a containerized environment.
+   - Downloads the video from S3, processes it using `fluent-ffmpeg`, and uploads the processed video back to S3.
 
-- Join the [Convex Discord community](https://convex.dev/community) to get help in real-time.
-- Follow [Convex on GitHub](https://github.com/get-convex/), star and contribute to the open-source implementation of Convex.
+### Workflow:
+
+1. **Task Creation & Pre-Signed URL Generation**:
+   - The client sends a request to create a task in the database.
+   - The server generates a pre-signed URL for the client to upload the video to S3.
+
+2. **Video Upload**:
+   - The client uploads the video to S3 using the pre-signed URL.
+
+3. **Add Video to Queue**:
+   - Once the video is uploaded, the system adds the video metadata to the SQS queue for processing.
+
+4. **Processing**:
+   - The consumer picks the video from the SQS queue, validates it, and starts an ECS container with the video’s metadata.
+   - The ECS container downloads the video from S3, processes it using `fluent-ffmpeg`, and uploads the processed video back to S3.
+
+5. **Completion & Status Update**:
+   - Once processing is complete, the task status is updated in the database, and the key (file path) of the processed video is saved for future retrieval.
+
